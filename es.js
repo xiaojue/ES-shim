@@ -1,14 +1,14 @@
 /**
  * @author xiaojue [designsor@gmail.com]
- * @fileoverview ES5-6 shim for broswer javascript
+ * @fileoverview ES5-6 shim for client javascript
  */
 (function(win, doc, Arr, Str, D, M, Num, Obj, Reg, global, undef) {
 
   var AP = Arr.prototype,
-      SP = Str.prototype,
-      DP = D.prototype,
-      NP = Num.prototype,
-      RP = Reg.prototype;
+  SP = Str.prototype,
+  DP = D.prototype,
+  NP = Num.prototype,
+  RP = Reg.prototype;
 
   var Arr5 = {
     isArray: function() {}
@@ -53,7 +53,7 @@
   };
 
   var StrPro6 = {
-    normalize:function(){},
+    normalize: function() {},
     codePointAt: function() {},
     repeat: function() {},
     startsWith: function() {},
@@ -108,46 +108,67 @@
   };
 
   var Obj5 = {
-    keys:function(){},
-    create:function(){},
-    getPrototypeOf:function(){},
-    getOwnPropertyNames:function(){},
-    defineProperty:function(){},
-    getOwnPropertDescriptor:function(){}
+    keys: function() {},
+    create: function() {},
+    getPrototypeOf: function() {},
+    getOwnPropertyNames: function() {},
+    defineProperty: function() {},
+    getOwnPropertDescriptor: function() {}
   };
 
   var Obj6 = {
-    keys:function(){},
-    is:function(){},
-    assign:function(){},
-    setPrototypeOf:function(){}
+    keys: function() {},
+    is: function() {},
+    assign: function() {},
+    setPrototypeOf: function() {}
   };
 
   var RegPro6 = {
-    flags:function(){} 
+    flags: function() {}
   };
 
   var Global5 = {
-    parseInt:function(){},
-    JSON:function(){}
+    parseInt: function() {},
+    JSON: function() {}
   };
 
   var Global6 = {
-    Promise:function(){},
-    Map:function(){},
-    Set:function(){}
+    Promise: function() {},
+    Map: function() {},
+    Set: function() {}
   };
 
-  var supportES5,supportES6; 
+  var supportES5 = checkES(Global5, global) && checkES(ArrPro5, AP),
+  supportES6 = checkES(Global6, global) && checkES(ArrPro6, AP);
 
-  function extend(){}
-
-  if(!supportES5){
-    extend([Arr5,Arr],[ArrPro5,AP],[StrPro5,SP],[D5,D],[DPro5,DP],[NumPro5,NP],[Obj5,Obj],[Global5,global]); 
+  function checkES(features, target) {
+    for (var feature in features) {
+      if (!target.hasOwnProperty(feature)) return false;
+    }
+    return true;
   }
 
-  if(!supportES6){
-    extend([Arr6,Arr],[ArrPro6,AP],[Str6,Str],[StrPro6,SP],[Num6,Num],[M6,M],[Obj6,Obj],[RegPro6,RP],[Global6,global]); 
+  function extend() {
+    var args = arguments;
+    for (var i = 0; i < args.length; i++) {
+      var exts = args[i],
+      source = exts[0],
+      target = exts[1],
+      forceAssign = exts[3];
+      for (var j in source) {
+        if (!forceAssign && (j in target)) continue;
+        target[j] = source[j];
+      }
+    }
+  }
+
+  if (!supportES5) {
+    extend([Arr5, Arr], [ArrPro5, AP], [StrPro5, SP], [D5, D], [DPro5, DP], [NumPro5, NP], [Obj5, Obj], [Global5, global]);
+  }
+
+  if (!supportES6) {
+    extend([Arr6, Arr], [ArrPro6, AP], [Str6, Str], [StrPro6, SP], [Num6, Num], [M6, M], [Obj6, Obj,true], [RegPro6, RP], [Global6, global, true]);
   }
 
 })(window, document, Array, String, Date, Math, Number, Object, RegExp, this);
+
