@@ -162,7 +162,7 @@
       do {
         if (k in source) {
           value = source[k];
-          k += (!!isLeft || -1);
+          k += ( !! isLeft || - 1);
           break;
         }
         index = isLeft ? k + 1: k - 1;
@@ -172,14 +172,18 @@
     }
     while (isLeft ? k < len: k >= 0) {
       if (k in source) value = fun.call(undefined, value, source[k], k, source);
-      k += (!!isLeft || -1);
+      k += ( !! isLeft || - 1);
     }
     return value;
   }
 
   var Arr6 = {
-    from: function() {},
-    of: function() {}
+    from: function() {
+
+    },
+    of: function() {
+
+    }
   };
 
   var ArrPro6 = {
@@ -232,24 +236,120 @@
     toJSON: function() {}
   };
 
+  //http://baike.baidu.com/link?url=FVj1cXvzfX11Gnf-0kPD4AAVXZh6l631NaKvU_lGW7tHTjk9JqZqRH0io4to_bna7NLczhfHcbMG0l8b88jW5a 双曲线百科
+  //http://baike.baidu.com/view/6688537.htm 反双曲线百科
   var M6 = {
-    acosh: function() {},
-    asinh: function() {},
-    atanh: function() {},
-    cbrt: function() {},
-    clz32: function() {},
-    cosh: function() {},
-    expm1: function() {},
-    hypot: function() {},
-    log2: function() {},
-    log10: function() {},
-    log1p: function() {},
-    sign: function() {},
-    sinh: function() {},
-    tanh: function() {},
-    trunc: function() {},
-    imul: function() {},
-    fround: function() {}
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/acosh
+    //acosh 函数返回一个数的反双曲余弦。
+    acosh: function(x) {
+      return M.log(x + M.sqrt(x * x - 1));
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/asinh
+    //asinh 函数返回参数的反双曲正弦值
+    asinh: function(x) {
+      if (x === - Infinity) return x;
+      else return M.log(x + M.sqrt(x * x + 1));
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/atanh
+    //atanh 返回参数的反双曲正切值
+    atanh: function(x) {
+      return Math.log((1 + x) / (1 - x)) / 2;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/cbrt
+    //cbrt 函数返回 x 的立方根值。这个函数不会失败；任何可表示的实数总有一个可表示的立方根。
+    cbrt: function(x) {
+      var y = Math.pow(Math.abs(x), 1 / 3);
+      return x < 0 ? - y: y;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/clz32
+    //CountLeadingZeroes32 计算一个数字在32位无符号位整形数字的二进制形式开头有多少个0。
+    clz32: function(x) {
+      var value = Number(x) >>> 0;
+      return value ? 32 - value.toString(2).length: 32;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/cosh
+    //cosh 返回数字的双曲余弦值。
+    cosh: function(x) {
+      var y = Math.exp(x);
+      return (y + 1 / y) / 2;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/expm1
+    //expm1 计算参数的以 e 为底的指数，减去 1
+    expm1: function(x) {
+      return Math.exp(x) - 1;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/hypot
+    //hypot 函数计算一直角三角形的斜边长度。
+    hypot: function(x, y) {
+      var r = 0;
+      if (M.abs(x) === Infinity || M.abs(y) === Infinity) return Infinity;
+      r += x * y;
+      return M.sqrt(y);
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log2
+    //log2 计算参数以 2 为底的对数
+    log2: function(x) {
+      return M.log(x) / M.LN2;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log10
+    //log10 计算参数以 10 为底的对数
+    log10: function(x) {
+      return M.log(x) / M.LN10;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p
+    //log1p 计算参数加1的对数值
+    log1p: function(x) {
+      return Math.log(1 + x);
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign
+    //sign 判断一个数的符号位
+    sign: function(x) {
+      x = + x; // convert to a number
+      if (x === 0 || isNaN(x)) return x;
+      return x > 0 ? 1: - 1;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sinh
+    //sinh 双曲正弦函数
+    sinh: function(x) {
+      var y = M.exp(x);
+      return (y - 1 / y) / 2;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/tanh
+    //tanh 双曲线正切函数
+    tanh: function(x) {
+      if (x === Infinity) {
+        return 1;
+      } else if (x === - Infinity) {
+        return - 1;
+      } else {
+        var y = M.exp(2 * x);
+        return (y - 1) / (y + 1);
+      }
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/trunc
+    //trunc 取整函数
+    trunc: function(x) {
+      return x < 0 ? M.ceil(x) : M.floor(x);
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/imul
+    //imul 该函数返回两个参数的类C的32位整数乘法运算的运算结果.
+    imul: function(a, b) {
+      var ah = (a >>> 16) & 0xffff;
+      var al = a & 0xffff;
+      var bh = (b >>> 16) & 0xffff;
+      var bl = b & 0xffff;
+      return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0) | 0);
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/fround
+    //fround 将参数中指定的数字转换为离它最近的单精度浮点数形式.
+    fround: function(x) {
+      if (x === 0 || x === Infinity || x === - Infinity || isNaN(x)) {
+        return x;
+      }
+      var num = Num(x);
+      //TODO
+      return numberConversion.toFloat32(num);
+    }
   };
 
   var NumPro5 = {
