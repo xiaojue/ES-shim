@@ -25,11 +25,11 @@
     isArray: isArr
   };
 
+  //http://es5.github.com/#x15.4.4.16
   var ArrPro5 = {
     //https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
-    //http://es5.github.com/#x15.4.4.16
     every: function(fun, thisP) {
-      var o = new Obj(this),
+      var O = Obj(this),
       len = O.length >>> 0,
       k = 0;
       if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
@@ -41,11 +41,36 @@
       }
       return true;
     },
-    filter: function() {
-
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+    filter: function(fun, thisP) {
+      var O = Obj(this),
+      len = O.length >>> 0,
+      res = [];
+      if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
+      for (var i = 0; i < len; i++) {
+        if(i in O){
+          var value = O[i];
+          if (fun.call(thisP, value, i, O)) res.push(value);
+        }
+      }
+      return res;
     },
-    forEach: function() {},
-    indexOf: function() {},
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+    forEach: function(fun,thisP) {
+      var O = Obj(this),
+      len = O.length >>> 0,
+      k = 0;
+      if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
+      while(k < len){
+        if(k in O){
+          fun.call(thisP,O[k],k,O); 
+        }
+        k++;
+      }
+    },
+    indexOf: function() {
+             
+    },
     lastIndexOf: function() {},
     map: function() {},
     some: function() {},
