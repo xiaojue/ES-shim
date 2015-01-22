@@ -221,6 +221,146 @@
     if (number < 10) return '0' + number;
     return number;
   }
+  // from https://github.com/inexorabletash/polyfill/blob/master/typedarray.js#L176-L266
+  function roundToEven(n) {
+    var w = Math.floor(n),
+    f = n - w;
+    if (f < 0.5) {
+      return w;
+    }
+    if (f > 0.5) {
+      return w + 1;
+    }
+    return w % 2 ? w + 1: w;
+  }
+
+  function packIEEE754(v, ebits, fbits) {
+    var bias = (1 << (ebits - 1)) - 1,
+    s,
+    e,
+    f,
+    i,
+    bits,
+    str,
+    bytes;
+
+    // Compute sign, exponent, fraction
+    var num = Num(v);
+    if (v != num) {
+      // NaN
+      // http://dev.w3.org/2006/webapi/WebIDL/#es-type-mapping
+      e = (1 << ebits) - 1;
+      f = Math.pow(2, fbits - 1);
+      s = 0;
+    } else if (v === Infinity || v === - Infinity) {
+      e = (1 << ebits) - 1;
+      f = 0;
+      s = (v < 0) ? 1: 0;
+    } else if (v === 0) {
+      e = 0;
+      f = 0;
+      s = (1 / v === - Infinity) ? 1: 0;
+    } else {
+      s = v < 0;
+      v = Math.abs(v);
+
+      if (v >= Math.pow(2, 1 - bias)) {
+        e = Math.min(Math.floor(Math.log(v) / Math.LN2), 1023);
+        f = roundToEven(v / Math.pow(2, e) * Math.pow(2, fbits));
+        if (f / Math.pow(2, fbits) >= 2) {
+          e = e + 1;
+          f = 1;
+        }
+        if (e > bias) {
+          // Overflow
+          e = (1 << ebits) - 1;
+          f = 0;
+        } else {
+          // Normal
+          e = e + bias;
+          f = f - Math.pow(2, fbits);
+        }
+      } else {
+        // Subnormal
+        e = 0;
+        f = roundToEven(v / Math.pow(2, 1 - bias - fbits));
+      }
+    }
+
+    // Pack sign, exponent, fraction
+    bits = [];
+    for (i = fbits; i; i -= 1) {
+      bits.push(f % 2 ? 1: 0);
+      f = Math.floor(f / 2);
+    }
+    for (i = ebits; i; i -= 1) {
+      bits.push(e % 2 ? 1: 0);
+      e = Math.floor(e / 2);
+    }
+    bits.push(s ? 1: 0);
+    bits.reverse();
+    str = bits.join('');
+
+    // Bits to bytes
+    bytes = [];
+    while (str.length) {
+      bytes.push(parseInt(str.slice(0, 8), 2));
+      str = str.slice(8);
+    }
+    return bytes;
+  }
+
+  function unpackIEEE754(bytes, ebits, fbits) {
+    // Bytes to bits
+    var bits = [],
+    i,
+    j,
+    b,
+    str,
+    bias,
+    s,
+    e,
+    f;
+
+    for (i = bytes.length; i; i -= 1) {
+      b = bytes[i - 1];
+      for (j = 8; j; j -= 1) {
+        bits.push(b % 2 ? 1: 0);
+        b = b >> 1;
+      }
+    }
+    bits.reverse();
+    str = bits.join('');
+
+    // Unpack sign, exponent, fraction
+    bias = (1 << (ebits - 1)) - 1;
+    s = parseInt(str.slice(0, 1), 2) ? - 1: 1;
+    e = parseInt(str.slice(1, 1 + ebits), 2);
+    f = parseInt(str.slice(1 + ebits), 2);
+
+    // Produce number
+    if (e === (1 << ebits) - 1) {
+      return f !== 0 ? NaN: s * Infinity;
+    } else if (e > 0) {
+      // Normalized
+      return s * Math.pow(2, e - bias) * (1 + f / Math.pow(2, fbits));
+    } else if (f !== 0) {
+      // Denormalized
+      return s * Math.pow(2, - (bias - 1)) * (f / Math.pow(2, fbits));
+    } else {
+      return s < 0 ? - 0: 0;
+    }
+  }
+
+  function unpackFloat32(b) {
+    return unpackIEEE754(b, 8, 23);
+  }
+  function packFloat32(v) {
+    return packIEEE754(v, 8, 23);
+  }
+  function toFloat32(num) {
+    return unpackFloat32(packFloat32(num));
+  }
 
   var D5 = {
     now: function() {
@@ -343,12 +483,8 @@
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/fround
     //fround 将参数中指定的数字转换为离它最近的单精度浮点数形式.
     fround: function(x) {
-      if (x === 0 || x === Infinity || x === - Infinity || isNaN(x)) {
-        return x;
-      }
-      var num = Num(x);
-      //TODO
-      return numberConversion.toFloat32(num);
+      if (x === 0 || x === Infinity || x === - Infinity || isNaN(x)) return x;
+      return toFloat32(Num(x));
     }
   };
 
@@ -441,4 +577,3 @@
   }
 
 })(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
-
