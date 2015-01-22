@@ -27,6 +27,10 @@
 
   //http://es5.github.com/#x15.4.4.16
   var ArrPro5 = {
+    unshift:function(){
+      AP.unshift.apply(this, arguments);
+      return this.length;
+    },
     //https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every
     every: function(fun, thisP) {
       var O = Obj(this),
@@ -300,9 +304,16 @@
   };
 
   var StrPro5 = {
-    split: function() {},
-    trim: function() {},
-    replace: function() {}
+    toJSON:toJSON,
+    split: function() {
+           
+    },
+    trim: function() {
+          
+    },
+    replace: function() {
+             
+    }
   };
 
   var Str6 = {
@@ -318,6 +329,10 @@
     endsWith: function() {},
     includes: function() {}
   };
+
+  function toJSON(){
+    return this.valueOf(); 
+  }
 
   //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
   function pad(number) {
@@ -469,14 +484,18 @@
     now: function() {
       return new D().getTime();
     },
-    toISOString: function() {
-      return this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + 'Z';
+    parse: function() {
+
     }
   };
 
   var DPro5 = {
-    parse: function() {},
-    toJSON: function() {}
+    toISOString:function(){
+      return this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + 'Z';
+    },
+    toJSON: function() {
+      return M6.isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + 'Z' : null;
+    }
   };
 
   //http://baike.baidu.com/link?url=FVj1cXvzfX11Gnf-0kPD4AAVXZh6l631NaKvU_lGW7tHTjk9JqZqRH0io4to_bna7NLczhfHcbMG0l8b88jW5a 双曲线百科
@@ -602,7 +621,7 @@
   };
 
   var NumPro5 = {
-    toJSON: function() {},
+    toJSON:toJSON, 
     toFixed: function(fractionDigits) {
       //https://bugzilla.mozilla.org/show_bug.cgi?id=186563#c5
       //http://hushc.sinaapp.com/post/90.html
@@ -646,7 +665,7 @@
   }
 
   var BPro5 = {
-    toJSON: function() {}
+    toJSON:toJSON
   };
 
   var Obj5 = {
@@ -672,15 +691,25 @@
   var Global5 = {
     parseInt: function() {},
     JSON: {
-      parse: function() {},
-      stringify: function() {}
+      parse: function() {
+             
+      },
+      stringify: function() {
+                 
+      }
     }
   };
 
   var Global6 = {
-    Promise: function() {},
-    Map: function() {},
-    Set: function() {}
+    Promise: function() {
+             
+    },
+    Map: function() {
+         
+    },
+    Set: function() {
+         
+    }
   };
 
   var supportES5 = checkES(Global5, global) && checkES(ArrPro5, AP),
@@ -726,5 +755,8 @@
     M.round = M5.round;
   }
 
-})(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
+  if([].unshift(0) !== 1){
+    AP.unshift = ArrPro5.unshift;
+  }
 
+})(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
