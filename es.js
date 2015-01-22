@@ -160,7 +160,7 @@
       } while (true);
     }
     while (isLeft ? k < len: k >= 0) {
-      if (k in source) value = fun.call(undefined, value, source[k], k, source);
+      if (k in source) value = fun.call(undef, value, source[k], k, source);
       k += ( !! isLeft || - 1);
     }
     return value;
@@ -172,9 +172,7 @@
       var O = this;
       var items = Obj(arrayLike);
       if (arrayLike === null) throw new TypeError('Array.from requires an array-like object');
-      if (mapFn) {
-        if (!isFun(mapFn)) throw new TypeError('Array.from when provided,the second argument must be function');
-      }
+      if (!isFun(mapFn)) throw new TypeError('Array.from when provided,the second argument must be function');
       var len = toLength(items.length),
       k,
       arr = isFun(O) ? Obj(new C(len)) : new Arr(len);
@@ -186,19 +184,119 @@
       arr.length = len;
       return arr;
     },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
     of: function() {
-
+      return AP.slice.call(arguments);
     }
   };
 
   var ArrPro6 = {
-    copyWithin: function() {},
-    fill: function() {},
-    find: function() {},
-    findIndex: function() {},
-    keys: function() {},
-    entries: function() {},
-    values: function() {}
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin
+    //最后一个参数为可选参数，省略则为数组长度。该方法在数组内复制从start(包含start)位置到end(不包含end)位置的一组元素[覆盖]到以target为开始位置的地方。
+    copyWithin: function(target,start,end) {
+      var O = Obj(this),
+      len = O.length >>> 0,
+      relativeTarget = target >> 0,
+      to = relativeTarget < 0 ? M.max(len + relativeTarget,0) : M.min(relativeTarget,len),
+      relativeStart = start >> 0,
+      from = relativeStart < 0 ? M.max(len + relativeStart,0) : M.min(relativeStart,len),
+      relativeEnd = end === undef ? len : end >> 0,
+      relativeFinal = relativeEnd < 0 ? M.max(len + relativeEnd,0) : M.min(relativeEnd,len),
+      count = M.min(relativeFinal- from,len - to),
+      direction = 1;
+      if(from < to && to < (from + count)){
+        direction = -1;
+        from += count - 1;
+        to += count -1;
+      }
+      while(count > 0){
+        if(from in O) O[to] = O[from];
+        else delete O[to];
+        from += direction;
+        to += direction;
+        count--;
+      }
+      return O;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
+    //fill()方法用一个值填充数组给定开始和结束位置之间的的所有值
+    fill: function(value,start,end) {
+      var O = Obj(this),
+      len = O.length >>> 0,
+      relativeStart = start >> 0,
+      k = relativeStart < 0 ? M.max(len + relativeStart,0) : M.min(relativeStart,len),
+      relativeEnd =  end === undef ? len : end >> 0,
+      relativeFinal =  relativeEnd < 0 ? M.max(len + relativeEnd,0) : M.min(relativeEnd,len);
+      while(k < relativeFinal){
+        O[k] = value;
+        k++;
+      }
+      return O;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+    //find()方法返回数组中符合条件的第一个元素，如果没有则返回undefind
+    find: function(fun,thisP) {
+      var O = Obj(this),
+      len = O.length >>> 0;
+      if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
+      for(var i=0;i<len;i++){
+        if(fun.call(thisP,O[i],i,O)) return O[i];
+      }
+      return undef;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+    //findIndex()方法与find()方法用法类似，返回的是第一个符合条件的元素的索引，如果没有则返回-1。
+    findIndex: function(fun,thisP) {
+      var O = Obj(this),
+      len = O.length >>> 0;
+      if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
+      for(var i=0;i<len;i++){
+        if(fun.call(thisP,O[i],i,O)) return i;
+      }
+      return -1;
+    },
+    //keys entries value 返回ArrayIterator迭代器
+    keys: function() {
+      return new ArrayIterator(this,'keys'); 
+    },
+    entries: function() {
+      return new ArrayIterator(this,'entries'); 
+    },
+    values: function() {
+      return new ArrayIterator(this,'values'); 
+    }
+  };
+
+  //https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js#L733
+  function ArrayIterator(array,kind){
+    this.i = 0;
+    this.array = array;
+    this.kind = kind;
+  }
+  //@xiaojue Modify 
+  ArrayIterator.prototype.next = function(){
+    var i = this.i,array = this.array,kind = this.kind;
+    if(!(this instanceof ArrayIterator)) throw new TypeError('Not an ArrayIterator');
+    if(isArr(array)){
+      var len = array.length >>> 0;
+      for(;i<len;i++){
+        var retval = {
+          'keys':i, 
+          'values':array[i],
+          'entries':[i,array[i]]
+        };
+        this.i = i + 1;
+        return {
+          value:retval[kind],
+          done:false
+        };
+      }
+    }
+    this.array = undef;
+    return {
+      value:undef,
+      done:true
+    };
   };
 
   var StrPro5 = {
