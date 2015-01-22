@@ -21,17 +21,6 @@
   isStr = is('String'),
   isReg = is('RegExp');
 
-  //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
-  function toInteger(num) {
-    var n = Num(num);
-    if (n != num || n === Infinity) { //isNaN,expect string
-      n = 0;
-    } else if (n !== 0 && n != (1 / 0) && n != - (1 / 0)) {
-      n = (n > 0 || - 1) * M.floor(M.abs(n));
-    }
-    return n;
-  }
-
   var Arr5 = {
     isArray: isArr
   };
@@ -178,8 +167,24 @@
   }
 
   var Arr6 = {
-    from: function() {
-
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+    from: function(arrayLike, mapFn, thisP) {
+      var O = this;
+      var items = Obj(arrayLike);
+      if (arrayLike === null) throw new TypeError('Array.from requires an array-like object');
+      if (mapFn) {
+        if (!isFun(mapFn)) throw new TypeError('Array.from when provided,the second argument must be function');
+      }
+      var len = toLength(items.length),
+      k,
+      arr = isFun(O) ? Obj(new C(len)) : new Arr(len);
+      while (k < len) {
+        if (mapFn) arr[k] = mapFn.call(thisP, items[k], k);
+        else arr[k] = items[k];
+        k++;
+      }
+      arr.length = len;
+      return arr;
     },
     of: function() {
 
@@ -376,7 +381,6 @@
     toJSON: function() {}
   };
 
-
   //http://baike.baidu.com/link?url=FVj1cXvzfX11Gnf-0kPD4AAVXZh6l631NaKvU_lGW7tHTjk9JqZqRH0io4to_bna7NLczhfHcbMG0l8b88jW5a 双曲线百科
   //http://baike.baidu.com/view/6688537.htm 反双曲线百科
   var M6 = {
@@ -491,12 +495,12 @@
 
   var M5 = {
     //https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js#L1279
-    round:function(x){
-      if(-0.5 <= x && x < 0.5 && x !== 0){
-        return M6.sign(x * 0); 
-      } 
+    round: function(x) {
+      if ( - 0.5 <= x && x < 0.5 && x !== 0) {
+        return M6.sign(x * 0);
+      }
       return M.round(x);
-    } 
+    }
   };
 
   var NumPro5 = {
@@ -505,7 +509,7 @@
       //https://bugzilla.mozilla.org/show_bug.cgi?id=186563#c5
       //http://hushc.sinaapp.com/post/90.html
       var num = Num(this);
-      return (M.round(num * M.pow(10, fractionDigits)) / M.pow(10, fractionDigits) + M.pow(10, -(fractionDigits + 1))).toString().slice(0, -1);
+      return (M.round(num * M.pow(10, fractionDigits)) / M.pow(10, fractionDigits) + M.pow(10, - (fractionDigits + 1))).toString().slice(0, - 1);
     }
   };
 
@@ -513,7 +517,7 @@
 
   var Num6 = {
     MAX_SAFE_INTEGER: maxSafeInteger,
-    MIN_SAFE_INTEGER: -maxSafeInteger,
+    MIN_SAFE_INTEGER: - maxSafeInteger,
     EPSILON: 2.220446049250313e-16,
     parseInt: global.parseInt,
     parseFloat: global.parseFloat,
@@ -526,6 +530,22 @@
       return Num6.isInteger(x) && M.abs(x) <= Num6.MAX_SAFE_INTEGER;
     }
   };
+
+  //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
+  function toInteger(num) {
+    var n = Num(num);
+    if (n != num || n === Infinity) { //isNaN,expect string
+      n = 0;
+    } else if (n !== 0 && n != (1 / 0) && n != - (1 / 0)) {
+      n = (n > 0 || - 1) * M.floor(M.abs(n));
+    }
+    return n;
+  }
+
+  function toLength(num) {
+    var len = toInteger(num);
+    return M.min(M.max(len, 0), Num6.maxSafeInteger);
+  }
 
   var BPro5 = {
     toJSON: function() {}
@@ -603,7 +623,7 @@
     M.imul = M6.imul;
   }
 
-  if(M.round(0.5 - Num.EPSILON / 4) === 0 && M.round(-0.5 + Num.EPSILON/3.99) === 1){
+  if (M.round(0.5 - Num.EPSILON / 4) === 0 && M.round( - 0.5 + Num.EPSILON / 3.99) === 1) {
     //http://stackoverflow.com/questions/12830742/javascript-math-round-bug-in-ie
     M.round = M5.round;
   }
