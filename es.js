@@ -509,16 +509,22 @@
     }
   };
 
+  var maxSafeInteger = M.pow(2, 53) - 1;
+
   var Num6 = {
-    MAX_SAFE_INTEGER: '',
-    MIN_SAFE_INTEGER: '',
-    EPSILON: '',
-    parseInt: function() {},
-    parseFloat: function() {},
-    isNaN: function() {},
-    isInteger: function() {},
-    isSafeInteger: function() {},
-    isFinite: function() {}
+    MAX_SAFE_INTEGER: maxSafeInteger,
+    MIN_SAFE_INTEGER: -maxSafeInteger,
+    EPSILON: 2.220446049250313e-16,
+    parseInt: global.parseInt,
+    parseFloat: global.parseFloat,
+    isFinite: global.isFinite,
+    isNaN: global.isNaN,
+    isInteger: function(x) {
+      return global.isFinite(x) && x === toInteger(x);
+    },
+    isSafeInteger: function(x) {
+      return Num6.isInteger(x) && M.abs(x) <= Num6.MAX_SAFE_INTEGER;
+    }
   };
 
   var BPro5 = {
