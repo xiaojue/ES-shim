@@ -376,6 +376,7 @@
     toJSON: function() {}
   };
 
+
   //http://baike.baidu.com/link?url=FVj1cXvzfX11Gnf-0kPD4AAVXZh6l631NaKvU_lGW7tHTjk9JqZqRH0io4to_bna7NLczhfHcbMG0l8b88jW5a 双曲线百科
   //http://baike.baidu.com/view/6688537.htm 反双曲线百科
   var M6 = {
@@ -488,9 +489,24 @@
     }
   };
 
+  var M5 = {
+    //https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js#L1279
+    round:function(x){
+      if(-0.5 <= x && x < 0.5 && x !== 0){
+        return M6.sign(x * 0); 
+      } 
+      return M.round(x);
+    } 
+  };
+
   var NumPro5 = {
     toJSON: function() {},
-    toFixed: function() {}
+    toFixed: function(fractionDigits) {
+      //https://bugzilla.mozilla.org/show_bug.cgi?id=186563#c5
+      //http://hushc.sinaapp.com/post/90.html
+      var num = Num(this);
+      return (M.round(num * M.pow(10, fractionDigits)) / M.pow(10, fractionDigits) + M.pow(10, -(fractionDigits + 1))).toString().slice(0, -1);
+    }
   };
 
   var Num6 = {
@@ -567,13 +583,24 @@
     }
   }
 
-  //if (!supportES5) {
-  console.log(5);
-  extend([Arr5, Arr], [ArrPro5, AP], [StrPro5, SP], [D5, D], [DPro5, DP], [NumPro5, NP], [Obj5, Obj], [BPro5, BP], [Global5, global]);
-  //}
+  if (!supportES5) {
+    console.log(5);
+    extend([Arr5, Arr], [ArrPro5, AP], [StrPro5, SP], [D5, D], [DPro5, DP], [NumPro5, NP], [Obj5, Obj], [BPro5, BP], [Global5, global]);
+  }
   if (!supportES6) {
     console.log(6);
     extend([Arr6, Arr], [ArrPro6, AP], [Str6, Str], [StrPro6, SP], [Num6, Num], [M6, M], [Obj6, Obj, true], [RegPro6, RP], [Global6, global, true]);
   }
 
+  if (M.imul(0xffffffff, 5) !== - 5) {
+    // Safari 6.1, at least, reports "0" for this value
+    M.imul = M6.imul;
+  }
+
+  if(M.round(0.5 - Num.EPSILON / 4) === 0 && M.round(-0.5 + Num.EPSILON/3.99) === 1){
+    //http://stackoverflow.com/questions/12830742/javascript-math-round-bug-in-ie
+    M.round = M5.round;
+  }
+
 })(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
+
