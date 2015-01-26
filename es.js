@@ -2,7 +2,7 @@
  * @author xiaojue [designsor@gmail.com]
  * @fileoverview ES5-6 shim for client javascript
  */
-(function(win, doc, Arr, Str, D, M, Num, Obj, Reg, B, global, undef) {
+(function(win, doc, Arr, Str, D, M, Num, Obj, Reg, B, global, Fun, undef) {
 
   var AP = Arr.prototype,
   SP = Str.prototype,
@@ -11,6 +11,7 @@
   BP = B.prototype,
   RP = Reg.prototype,
   OP = Obj.prototype,
+  FP = Fun.prototype,
   toString = OP.toString,
   is = function(type) {
     return function(val) {
@@ -23,6 +24,10 @@
   isFun = is('Function'),
   isStr = is('String'),
   isReg = is('RegExp');
+
+  var FunPro5 = {
+    bind: function() {}
+  };
 
   var Arr5 = {
     isArray: isArr
@@ -675,6 +680,7 @@
 
   var Obj5 = {
     keys: function() {},
+    freeze: function() {},
     create: function() {},
     getPrototypeOf: function() {},
     getOwnPropertyNames: function() {},
@@ -841,9 +847,124 @@
   */
 
   var Global6 = {
-    Promise: function() {
+    //https://github.com/then/promise
+    Promise: (function() {
+      function promise(resolver) {
+        if (!isObj(this)) throw new TypeError('Promises must be constructed via new');
+        if (!isFun(resolver)) throw new TypeError('not a function');
+        var state = null,
+        thisValue = null,
+        deferreds = [],
+        self = this;
 
-    },
+        function resolve(value) {
+          try {
+            if (value === self) throw new TypeError('A promise cannot be resolved with itself');
+            if (value && (isObj(value) || isFun(value))) {
+              if (isFun(value.then)) {
+                doResolve(value.then.bind(value), resolve, reject);
+                return;
+              }
+            }
+            state = true;
+            thisValue = value;
+            finale();
+          } catch(e) {
+            reject(e);
+          }
+        }
+        function reject(reason) {
+          state = false;
+          thisValue = reason;
+          finale();
+        }
+
+        function finale() {
+          for (var i = 0, len = deferreds.length; i < len; i++) handle(deferreds[i]);
+          deferreds = null;
+        }
+        //https://github.com/kriskowal/asap/blob/master/browser-raw.js#L188
+        function asap(callback) {
+          return function() {
+            var timeoutHandle = setTimeout(handleTimer, 0),
+            intervalHandle = setInterval(handleTimer, 50);
+            function handleTimer() {
+              clearTimeout(timeoutHandle);
+              clearInterval(intervalHandle);
+              callback();
+            }
+          };
+        }
+
+        function handle(deferred) {
+          if (state === null) {
+            deferreds.push(deferred);
+            return;
+          }
+          asap(function() {
+            var cb = state ? deferred.onFulfilled: deferred.onRejected;
+            if (cb === null) { (state ? deferred.resolve: deferred.reject)(thisValue);
+              return;
+            }
+            var ret;
+            try {
+              ret = cb(thisValue);
+            } catch(e) {
+              deferred.reject(e);
+              return;
+            }
+            deferred.resolve(ret);
+          });
+        }
+
+        doResolve(resolver, resolve, reject);
+
+      }
+
+      function doResolve(fn, resolve, reject) {
+        var done = false;
+        try {
+          fn(function(value) {
+            if (done) return;
+            done = true;
+            resolve(value);
+          },
+          function(reason) {
+            if (done) return;
+            done = true;
+            reject(reason);
+          });
+        } catch(e) {
+          if (done) return;
+          done = true;
+          reject(e);
+        }
+      }
+
+      function deferred(onFulfilled, onRejected, resolve, reject) {
+        this.onFulfilled = isFun(onFulfilled) ? onFulfilled: null;
+        this.onRejected = isFun(onRejected) ? onRejected: null;
+        this.resolve = resolve;
+        this.reject = reject;
+      }
+
+      promise.prototype = {
+        constructor: promise,
+        'catch': function(onRejected) {
+
+        },
+        'then': function(resolve, reject) {
+          return new self.constructor(function(resolve, reject) {
+            handle(new deferred(onFulfilled, onRejected, resolve, reject));
+          });
+        }
+      };
+      promise.reject = function() {};
+      promise.resolve = function() {};
+      promise.all = function() {};
+      promise.race = function() {};
+      return promise;
+    } ()),
     Map: function() {
 
     },
@@ -899,5 +1020,5 @@
     AP.unshift = ArrPro5.unshift;
   }
 
-})(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
+})(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, Function, this);
 
