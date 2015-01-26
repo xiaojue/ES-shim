@@ -10,12 +10,15 @@
   NP = Num.prototype,
   BP = B.prototype,
   RP = Reg.prototype,
-  toString = Obj.prototype.toString,
+  OP = Obj.prototype,
+  toString = OP.toString,
   is = function(type) {
     return function(val) {
       return toString.call(val) === '[object ' + type + ']';
     };
   },
+  isNum = is('Number'),
+  isObj = is('Object'),
   isArr = is('Array'),
   isFun = is('Function'),
   isStr = is('String'),
@@ -27,7 +30,7 @@
 
   //http://es5.github.com/#x15.4.4.16
   var ArrPro5 = {
-    unshift:function(){
+    unshift: function() {
       AP.unshift.apply(this, arguments);
       return this.length;
     },
@@ -197,24 +200,24 @@
   var ArrPro6 = {
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin
     //最后一个参数为可选参数，省略则为数组长度。该方法在数组内复制从start(包含start)位置到end(不包含end)位置的一组元素[覆盖]到以target为开始位置的地方。
-    copyWithin: function(target,start,end) {
+    copyWithin: function(target, start, end) {
       var O = Obj(this),
       len = O.length >>> 0,
       relativeTarget = target >> 0,
-      to = relativeTarget < 0 ? M.max(len + relativeTarget,0) : M.min(relativeTarget,len),
+      to = relativeTarget < 0 ? M.max(len + relativeTarget, 0) : M.min(relativeTarget, len),
       relativeStart = start >> 0,
-      from = relativeStart < 0 ? M.max(len + relativeStart,0) : M.min(relativeStart,len),
-      relativeEnd = end === undef ? len : end >> 0,
-      relativeFinal = relativeEnd < 0 ? M.max(len + relativeEnd,0) : M.min(relativeEnd,len),
-      count = M.min(relativeFinal- from,len - to),
+      from = relativeStart < 0 ? M.max(len + relativeStart, 0) : M.min(relativeStart, len),
+      relativeEnd = end === undef ? len: end >> 0,
+      relativeFinal = relativeEnd < 0 ? M.max(len + relativeEnd, 0) : M.min(relativeEnd, len),
+      count = M.min(relativeFinal - from, len - to),
       direction = 1;
-      if(from < to && to < (from + count)){
-        direction = -1;
+      if (from < to && to < (from + count)) {
+        direction = - 1;
         from += count - 1;
-        to += count -1;
+        to += count - 1;
       }
-      while(count > 0){
-        if(from in O) O[to] = O[from];
+      while (count > 0) {
+        if (from in O) O[to] = O[from];
         else delete O[to];
         from += direction;
         to += direction;
@@ -224,14 +227,14 @@
     },
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
     //fill()方法用一个值填充数组给定开始和结束位置之间的的所有值
-    fill: function(value,start,end) {
+    fill: function(value, start, end) {
       var O = Obj(this),
       len = O.length >>> 0,
       relativeStart = start >> 0,
-      k = relativeStart < 0 ? M.max(len + relativeStart,0) : M.min(relativeStart,len),
-      relativeEnd =  end === undef ? len : end >> 0,
-      relativeFinal =  relativeEnd < 0 ? M.max(len + relativeEnd,0) : M.min(relativeEnd,len);
-      while(k < relativeFinal){
+      k = relativeStart < 0 ? M.max(len + relativeStart, 0) : M.min(relativeStart, len),
+      relativeEnd = end === undef ? len: end >> 0,
+      relativeFinal = relativeEnd < 0 ? M.max(len + relativeEnd, 0) : M.min(relativeEnd, len);
+      while (k < relativeFinal) {
         O[k] = value;
         k++;
       }
@@ -239,80 +242,82 @@
     },
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
     //find()方法返回数组中符合条件的第一个元素，如果没有则返回undefind
-    find: function(fun,thisP) {
+    find: function(fun, thisP) {
       var O = Obj(this),
       len = O.length >>> 0;
       if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
-      for(var i=0;i<len;i++){
-        if(fun.call(thisP,O[i],i,O)) return O[i];
+      for (var i = 0; i < len; i++) {
+        if (fun.call(thisP, O[i], i, O)) return O[i];
       }
       return undef;
     },
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
     //findIndex()方法与find()方法用法类似，返回的是第一个符合条件的元素的索引，如果没有则返回-1。
-    findIndex: function(fun,thisP) {
+    findIndex: function(fun, thisP) {
       var O = Obj(this),
       len = O.length >>> 0;
       if (!isFun(fun)) throw new TypeError(fun + ' is not a function');
-      for(var i=0;i<len;i++){
-        if(fun.call(thisP,O[i],i,O)) return i;
+      for (var i = 0; i < len; i++) {
+        if (fun.call(thisP, O[i], i, O)) return i;
       }
-      return -1;
+      return - 1;
     },
     //keys entries value 返回ArrayIterator迭代器
     keys: function() {
-      return new ArrayIterator(this,'keys'); 
+      return new ArrayIterator(this, 'keys');
     },
     entries: function() {
-      return new ArrayIterator(this,'entries'); 
+      return new ArrayIterator(this, 'entries');
     },
     values: function() {
-      return new ArrayIterator(this,'values'); 
+      return new ArrayIterator(this, 'values');
     }
   };
 
   //https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js#L733
-  function ArrayIterator(array,kind){
+  function ArrayIterator(array, kind) {
     this.i = 0;
     this.array = array;
     this.kind = kind;
   }
   //@xiaojue Modify 
-  ArrayIterator.prototype.next = function(){
-    var i = this.i,array = this.array,kind = this.kind;
-    if(!(this instanceof ArrayIterator)) throw new TypeError('Not an ArrayIterator');
-    if(isArr(array)){
+  ArrayIterator.prototype.next = function() {
+    var i = this.i,
+    array = this.array,
+    kind = this.kind;
+    if (! (this instanceof ArrayIterator)) throw new TypeError('Not an ArrayIterator');
+    if (isArr(array)) {
       var len = array.length >>> 0;
-      for(;i<len;i++){
+      for (; i < len; i++) {
         var retval = {
-          'keys':i, 
-          'values':array[i],
-          'entries':[i,array[i]]
+          'keys': i,
+          'values': array[i],
+          'entries': [i, array[i]]
         };
         this.i = i + 1;
         return {
-          value:retval[kind],
-          done:false
+          value: retval[kind],
+          done: false
         };
       }
     }
     this.array = undef;
     return {
-      value:undef,
-      done:true
+      value: undef,
+      done: true
     };
   };
 
   var StrPro5 = {
-    toJSON:toJSON,
+    toJSON: toJSON,
     split: function() {
-           
+
     },
     trim: function() {
-          
+
     },
     replace: function() {
-             
+
     }
   };
 
@@ -330,8 +335,8 @@
     includes: function() {}
   };
 
-  function toJSON(){
-    return this.valueOf(); 
+  function toJSON() {
+    return this.valueOf();
   }
 
   //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
@@ -490,11 +495,11 @@
   };
 
   var DPro5 = {
-    toISOString:function(){
+    toISOString: function() {
       return this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + '.' + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + 'Z';
     },
     toJSON: function() {
-      return M6.isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + 'Z' : null;
+      return M6.isFinite(this.valueOf()) ? this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + 'Z': null;
     }
   };
 
@@ -621,7 +626,7 @@
   };
 
   var NumPro5 = {
-    toJSON:toJSON, 
+    toJSON: toJSON,
     toFixed: function(fractionDigits) {
       //https://bugzilla.mozilla.org/show_bug.cgi?id=186563#c5
       //http://hushc.sinaapp.com/post/90.html
@@ -665,7 +670,7 @@
   }
 
   var BPro5 = {
-    toJSON:toJSON
+    toJSON: toJSON
   };
 
   var Obj5 = {
@@ -688,27 +693,162 @@
     flags: function() {}
   };
 
+  var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+  jsonreg1 = /^[\],:{}\s]*$/,
+  jsonreg2 = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,
+  jsonreg3 = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
+  jsonreg4 = /(?:^|:|,)(?:\s*\[)+/g;
+
+  function walk(holder, key, reviver) {
+    var k, v, value = holder[key];
+    if (value && isObj(value)) {
+      for (k in value) {
+        if (value.hasOwnProperty(k)) {
+          v = walk(value, k, reviver);
+          if (v !== undef) {
+            value[k] = v;
+          } else {
+            delete value[k];
+          }
+        }
+      }
+    }
+    return reviver.call(holder, key, value);
+  }
+
+  var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+  meta = {
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '"': '\\"',
+    '\\': '\\\\'
+  },
+  gap = '';
+
+  function quote(string) {
+    escapable.lastIndex = 0;
+    return escapable.test(string) ? '"' + string.replace(escapable, function(a) {
+      var c = meta[a];
+      return isStr(c) ? c: '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(4);
+    }) + '"': '"' + string + '"';
+  }
+
+  function str(key, holder, indent, rep) {
+    var i, k, v, length, mind = gap,
+    partial, value = holder[key];
+    if (value && isObj(value) && isFun(value.toJSON)) {
+      value = value.toJSON(key);
+    }
+    if (isFun(rep)) {
+      value = rep.call(holder, key, value);
+    }
+    switch (typeof value) {
+    case 'string':
+      return quote(value);
+    case 'number':
+      return isFinite(value) ? Str(value) : 'null';
+    case 'boolean':
+    case 'null':
+      return Str(value);
+    case 'object':
+      if (!value) return 'null';
+      gap += indent;
+      partial = [];
+      if (isArr(value)) {
+        length = value.length;
+        for (i = 0; i < length; i++) {
+          partial[i] = str(i, value, indent, rep) || 'null';
+        }
+        v = partial.length === 0 ? '[]': gap ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']': '[' + partial.join(',') + ']';
+        gap = mind;
+        return v;
+      }
+      if (rep && isObj(rep)) {
+        length = rep.length;
+        for (i = 0; i < length; i++) {
+          if (isStr(rep[i])) {
+            k = rep[i];
+            v = str(k, value, indent, rep);
+            if (v) partial.push(quote(k) + (gap ? ': ': ':') + v);
+          }
+        }
+      } else {
+        for (k in value) {
+          if (value.hasOwnProperty(k)) {
+            v = str(k, value, indent, rep);
+            if (v) partial.push(quote(k) + (gap ? ': ': ':') + v);
+          }
+        }
+      }
+      break;
+    default:
+      break;
+    }
+    v = partial.length === 0 ? '{}': gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}': '{' + partial.join(',') + '}';
+    gap = mind;
+    return v;
+  }
+
+  //https://github.com/douglascrockford/JSON-js/blob/master/json2.js
   var Global5 = {
-    parseInt: function() {},
+    //parseInt: function() {},
     JSON: {
-      parse: function() {
-             
+      parse: function(text, reviver) {
+        var json;
+        text = Str(text);
+        cx.lastIndex = 0;
+        if (cx.test(text)) {
+          text = text.replace(cx, function(a) {
+            return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice( - 4);
+          });
+        }
+        if (jsonreg1.test(text.replace(jsonreg2, '@').replace(jsonreg3, ']').replace(jsonreg4, ''))) {
+          json = eval('(' + text + ')');
+          return isFun(reviver) ? walk({
+            '': json
+          },
+          '', reviver) : json;
+        }
+        throw new SyntaxError('JSON.parse ' + text);
       },
-      stringify: function() {
-                 
+      stringify: function(value, replacer, space) {
+        var indent = '';
+        if (isNum(space)) {
+          for (var i = 0; i < space; i++) {
+            indent += ' ';
+          }
+        } else if (isStr(space)) {
+          indent = space;
+        }
+        if (replacer && ! isFun(replacer) && (!isObj(replacer) || ! isNum(replacer.length))) {
+          throw new Error('JSON.stringify ' + value);
+        }
+        return str('', {
+          '': value
+        },
+        indent, replacer);
       }
     }
   };
 
+  /* 
+  var a = Global5.JSON.stringify({a:{b:1,c:2},d:3},null,3);
+  var b = Global5.JSON.parse('{"a":{"b":1,"c":2},"d":3}');
+  console.log(a,b);
+  */
+
   var Global6 = {
     Promise: function() {
-             
+
     },
     Map: function() {
-         
+
     },
     Set: function() {
-         
+
     }
   };
 
@@ -737,11 +877,11 @@
   }
 
   if (!supportES5) {
-    console.log(5);
+    //console.log(5);
     extend([Arr5, Arr], [ArrPro5, AP], [StrPro5, SP], [D5, D], [DPro5, DP], [NumPro5, NP], [Obj5, Obj], [BPro5, BP], [Global5, global]);
   }
   if (!supportES6) {
-    console.log(6);
+    //console.log(6);
     extend([Arr6, Arr], [ArrPro6, AP], [Str6, Str], [StrPro6, SP], [Num6, Num], [M6, M], [Obj6, Obj, true], [RegPro6, RP], [Global6, global, true]);
   }
 
@@ -755,8 +895,9 @@
     M.round = M5.round;
   }
 
-  if([].unshift(0) !== 1){
+  if ([].unshift(0) !== 1) {
     AP.unshift = ArrPro5.unshift;
   }
 
 })(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, this);
+
