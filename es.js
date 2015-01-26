@@ -951,18 +951,70 @@
       promise.prototype = {
         constructor: promise,
         'catch': function(onRejected) {
-
+          return this.then(null,onRejected);  
         },
-        'then': function(resolve, reject) {
-          return new self.constructor(function(resolve, reject) {
-            handle(new deferred(onFulfilled, onRejected, resolve, reject));
+        'then': function(onFulfilled) {
+          if(!isFun(onFulfilled)) return this;
+          return new promise(function(resolve, reject) {
+            asap(function(){
+              try{
+                resolve(onFulfilled(value));
+              }catch(e){
+                reject(e); 
+              }
+            });
           });
         }
       };
-      promise.reject = function() {};
-      promise.resolve = function() {};
-      promise.all = function() {};
-      promise.race = function() {};
+      promise.reject = function(value) {
+        return new promise(function(resolve,reject){
+          reject(value); 
+        });
+      };
+      promise.resolve = function(value) {
+        return new promise(function(resolve,reject){
+          reject(value); 
+        });
+      };
+      promise.all = function(arr) {
+        var args = Arr6.of(arr);
+
+        return new Promise(function(resolve,reject){
+          if(args.length === 0){
+            resolve([]); 
+            return;
+          }
+          var remaining = args.length;
+          function res(i,val){
+            try{
+              if(val && (isObj(val) || isFun(val))){
+                var then = val.then;
+                if(isFun(then)){
+                  then.call(val,function(val){
+                    res(i,val);
+                  },reject);
+                  return; 
+                }
+              }
+              args[i] = val;
+              --remaining;
+              if(remaining === 0) resolve(args);
+            }catch(e){
+              reject(e); 
+            } 
+          }
+          for(var i =0;i<arges.length;i++){
+            res(i,args[i]); 
+          }
+        });
+      };
+      promise.race = function(values) {
+        return new promise(function(resolve,reject){
+          values.forEach(function(value){
+              promise.reslove(value).then(resolve,reject); 
+          });
+        }); 
+      };
       return promise;
     } ()),
     Map: function() {
