@@ -2,7 +2,7 @@
  * @author xiaojue [designsor@gmail.com]
  * @fileoverview ES5-6 shim for client javascript
  */
-(function(win, doc, Arr, Str, D, M, Num, Obj, Reg, B, global, Fun, undef) {
+(function(win, doc, Arr, Str, D, M, Num, Obj, Reg, B, Fun, global, undef) {
 
   var AP = Arr.prototype,
   SP = Str.prototype,
@@ -25,8 +25,20 @@
   isStr = is('String'),
   isReg = is('RegExp');
 
+  //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
   var FunPro5 = {
-    bind: function() {}
+    bind: function(oThis) {
+      if(!isFun(this)) throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+      var args = Arr6.of(arguments).slice(1),
+        fToBind = this,
+        fNOP = function(){},
+        fBound = function(){
+          return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,args.concat(Arr6.of(arguments))); 
+        };
+      fNOP.prototype = this.prototype;
+      fBound.prototype = new fNOP();
+      return fBound;
+    }
   };
 
   var Arr5 = {
@@ -313,31 +325,98 @@
     };
   };
 
+  //https://github.com/es-shims/es5-shim/blob/master/es5-shim.js#L1398
+  var ws = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003' +
+          '\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028' +
+          '\u2029\uFEFF',
+  wsRegexChars = '[' + ws + ']',
+  trimBeginRegexp = new RegExp('^' + wsRegexChars + wsRegexChars + '*'),
+  trimEndRegexp = new RegExp(wsRegexChars + wsRegexChars + '*$');
+
   var StrPro5 = {
     toJSON: toJSON,
     split: function() {
-
+      //TODO
     },
     trim: function() {
-
+      if(!isStr(this) || this === null) throw new TypeError('can\'t convert to '+this+' object');
+      return Str(this).replace(trimBeginRegexp,'').replace(trimEndRegexp,'');
     },
     replace: function() {
-
+      //TODO
     }
   };
 
   var Str6 = {
-    fromCodePoint: function() {},
-    raw: function() {}
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
+    fromCodePoint: function() {
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw
+    raw: function() {
+    }
   };
 
   var StrPro6 = {
-    normalize: function() {},
-    codePointAt: function() {},
-    repeat: function() {},
-    startsWith: function() {},
-    endsWith: function() {},
-    includes: function() {}
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize
+    normalize: function() {
+      //TODO
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
+    codePointAt: function(pos) {
+      if(!isStr(this) || this === null) throw new TypeError('can\'t convert to '+this+' object');
+      var thisStr = Str(this),
+      position = toInteger(pos),
+      length = thisStr.length;
+      if (position >= 0 && position < length) {
+        var first = thisStr.charCodeAt(position);
+        var isEnd = (position + 1 === length);
+        if (first < 0xD800 || first > 0xDBFF || isEnd)  return first;
+        var second = thisStr.charCodeAt(position + 1);
+        if (second < 0xDC00 || second > 0xDFFF)  return first;
+        return ((first - 0xD800) * 1024) + (second - 0xDC00) + 0x10000;
+      }
+      return undef;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
+    repeat: function(count) {
+      if(!isStr(this) || this === null) throw new TypeError('can\'t convert to '+this+' object');
+      var str = Str(this);
+      count = toInteger(count); 
+      if(count < 0 || count == Infinity) throw new Error('repeat count must be non-negative or less than infinity');
+      if(str.length === 0 || count === 0) return '';
+      if(str.length * count >= 1<<28) throw new Error('repeat count must not overflow maximun string size');
+      function repeat(s,time){
+        if(times % 2) return repeat(s,times - 1) + s;
+        var half = repeat(s,times/2);
+        return half + half;
+      }
+      return repeat(str,count);
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+    startsWith: function(searchStr) {
+      var thisStr = Str(this);
+      if (isReg(searchStr) || this === null) throw new TypeError('Cannot call method "startsWith" with a '+this+' or on '+this);
+      searchStr = Str(searchStr);
+      var startArg = arguments.length > 1 ? arguments[1] : undef,
+      start = M.max(toInteger(startArg), 0);
+      return thisStr.slice(start, start + searchStr.length) === searchStr;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+    endsWith: function(searchStr) {
+      var thisStr = Str(this);
+      if (isReg(searchStr) || this === null) throw new TypeError('Cannot call method "startsWith" with a '+this+' or on '+this);
+      searchStr = Str(searchStr);
+      var thisLen = thisStr.length,
+      posArg = arguments.length > 1 ? arguments[1] : undef,
+      pos = posArg === undef ? thisLen : toInteger(posArg),
+      end = M.min(M.max(pos, 0), thisLen);
+      return thisStr.slice(end - searchStr.length, end) === searchStr;
+    },
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+    includes: function(searchStr) {
+      var position = arguments.length > 1 ? arguments[1] : undef;
+      return SP.indexOf.call(this,searchStr,position) !== -1;
+    }
   };
 
   function toJSON() {
@@ -495,7 +574,7 @@
       return new D().getTime();
     },
     parse: function() {
-
+      //TODO
     }
   };
 
@@ -680,7 +759,6 @@
 
   var Obj5 = {
     keys: function() {},
-    freeze: function() {},
     create: function() {},
     getPrototypeOf: function() {},
     getOwnPropertyNames: function() {},
@@ -883,18 +961,6 @@
           for (var i = 0, len = deferreds.length; i < len; i++) handle(deferreds[i]);
           deferreds = null;
         }
-        //https://github.com/kriskowal/asap/blob/master/browser-raw.js#L188
-        function asap(callback) {
-          return function() {
-            var timeoutHandle = setTimeout(handleTimer, 0),
-            intervalHandle = setInterval(handleTimer, 50);
-            function handleTimer() {
-              clearTimeout(timeoutHandle);
-              clearInterval(intervalHandle);
-              callback();
-            }
-          };
-        }
 
         function handle(deferred) {
           if (state === null) {
@@ -919,6 +985,19 @@
 
         doResolve(resolver, resolve, reject);
 
+      }
+
+      //https://github.com/kriskowal/asap/blob/master/browser-raw.js#L188
+      function asap(callback) {
+        return function() {
+          var timeoutHandle = setTimeout(handleTimer, 0),
+          intervalHandle = setInterval(handleTimer, 50);
+          function handleTimer() {
+            clearTimeout(timeoutHandle);
+            clearInterval(intervalHandle);
+            callback();
+          }
+        };
       }
 
       function doResolve(fn, resolve, reject) {
@@ -1017,12 +1096,16 @@
       };
       return promise;
     } ()),
-    Map: function() {
-
-    },
-    Set: function() {
-
-    }
+    Map: (function() {
+      //TODO
+      function Set(){}
+      return Map;
+    }()),
+    Set: (function() {
+      //TODO
+      function Set(){}
+      return Set;
+    }())
   };
 
   var supportES5 = checkES(Global5, global) && checkES(ArrPro5, AP),
@@ -1073,4 +1156,3 @@
   }
 
 })(window, document, Array, String, Date, Math, Number, Object, RegExp, Boolean, Function, this);
-
