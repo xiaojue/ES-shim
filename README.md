@@ -10,7 +10,7 @@ You can use some [ES5][1] or [ES6][2] features in old browsers,like `Promise` `J
 
 [ES5-shim][3],[ES6-shim][4] are can't decomposed and complicated.
 
-[ES-shim][5] is decomposable and simpler and more applied to actual projects.
+[ES-shim][5] is decomposed and simpler and more applied to actual projects.
 
 ----
 
