@@ -2,7 +2,7 @@
 
 Simpleness ES5,6 shim for client javascript.
 
-You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` `JSON` `Array.prototype.forEach` `String.prototyp.repeat` etc.
+You can use some [ES5][1] or [ES6][2] features in old browsers,like `Promise` `JSON` `Array.prototype.forEach` `String.prototyp.repeat` etc.
 
 ----
 
