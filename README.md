@@ -141,3 +141,15 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 ## License
 
 MIT License
+
+
+  [1]: http://kangax.github.io/compat-table/es5/
+  [2]: http://kangax.github.io/compat-table/es6/
+  [3]: https://github.com/es-shims/es5-shim
+  [4]: https://github.com/paulmillr/es6-shim
+  [5]: https://github.com/xiaojue/ES-shim
+  [6]: https://github.com/es-shims/es5-shim/blob/master/es5-shim.js#L380
+  [7]: https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js#L1279
+  [8]: http://stackoverflow.com/questions/10015027/javascript-tofixed-not-rounding
+  [9]: https://github.com/xiaojue/ES-shim/blob/master/lib/regexp.js#L8
+  [10]: https://github.com/xiaojue/ES-shim/blob/master/lib/%24es.js#L88
