@@ -8,7 +8,7 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 
 ## Why ES-shim ?
 
-[ES5-shim][3],[ES6-shim][4] is very heavy and complex,and they are not decomposable.
+[ES5-shim][3],[ES6-shim][4] are can't decomposed and complicated.
 
 [ES-shim][5] is decomposable and simpler and more applied to actual projects.
 
