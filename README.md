@@ -29,7 +29,6 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 
 - Array.from
 - Array.of
-
 - Array.prototype.copyWithin
 - Array.prototype.fill
 - Array.prototype.find
@@ -37,9 +36,7 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 - Array.prototype.keys
 - Array.prototype.entries
 - Array.prototype.values
-
 - Array.isArray
-
 - Array.prototype.every
 - Array.prototype.filter
 - Array.prototype.forEach
@@ -49,7 +46,6 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 - Array.prototype.some
 - Array.prototype.reduce
 - Array.prototype.reduceRight
-
 - Array.prototype.unshift [fix bug][6]
 
 #### Boolean 
@@ -85,14 +81,12 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 - Math.trunc
 - Math.imul
 - Math.fround
-
 - Math.round [fix bug][7]
 
 #### Number
 
 - Number.prototype.toJSON
 - Number.prototype.toFixed [fix bug][8]
-
 - Number.MAX_SAFE_INTEGER
 - Number.MIN_SAFE_INTEGER
 - Number.EPSILON
@@ -122,10 +116,8 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 
 - Srting.prototype.trim
 - Srting.prototype.toJSON
-
 - String.fromCodePoint
 - String.raw
-
 - String.prototype.codePointAt
 - String.prototype.repeat
 - String.prototype.startsWith
@@ -136,7 +128,6 @@ You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` 
 
 - Promise.prototype.catch
 - Promise.prototype.then
-
 - Promise.reject
 - Promise.resolve
 - Promise.race
