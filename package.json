@@ -1,0 +1,16 @@
+{
+    "name":"ES-shim",
+    "version":"0.0.1",
+    "author":[{
+        "name":"xiaojue",
+        "email":"designsor@gmail.com"
+    }],
+    "description":"ES-shim in the browser",
+    "devDependencies":{
+        "grunt":"*",
+        "grunt-contrib-uglify":"*",
+        "grunt-contrib-clean":"*",
+        "grunt-contrib-concat":"*",
+        "mocha":"*"
+    }
+}
