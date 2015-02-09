@@ -2,15 +2,15 @@
 
 Simpleness ES5,6 shim for client javascript.
 
-You can use some [ES5][1] or [ES6][2] features with old browsers,like `Promise` `JSON` `Array.prototype.forEach` `String.prototyp.repeat` etc.
+You can use some [ES5][1] or [ES6][2] features in old browsers,like `Promise` `JSON` `Array.prototype.forEach` `String.prototyp.repeat` etc.
 
 ----
 
 ## Why ES-shim ?
 
-[ES5-shim][3],[ES6-shim][4] is very heavy and complex,and they are not decomposable.
+[ES5-shim][3],[ES6-shim][4] are can't decomposed and complicated.
 
-[ES-shim][5] is decomposable and simpler and more applied to actual projects.
+[ES-shim][5] is decomposed and simpler and more applied to actual projects.
 
 ----
 
