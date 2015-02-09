@@ -2,6 +2,11 @@
   <head>
     <title>es.js test</title> 
     <meta charset="utf8">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../lib/$es.js"></script>
     <script src="../lib/array.js"></script>
     <script src="../lib/boolean.js"></script>
@@ -15,6 +20,23 @@
     <script src="../lib/promise.js"></script>
     <script src="../lib/regexp.js"></script>
     <script src="../lib/string.js"></script>
-  </head>
-  <body></body>
+
+    <!-- test -->
+    <script src="test.array.js"></script>
+    <script src="test.boolean.js"></script>
+    <script src="test.date.js"></script>
+    <script src="test.function.js"></script>
+    <script src="test.global.js"></script>
+    <script src="test.json.js"></script>
+    <script src="test.math.js"></script>
+    <script src="test.number.js"></script>
+    <script src="test.object.js"></script>
+    <script src="test.promise.js"></script>
+    <script src="test.regexp.js"></script>
+    <script src="test.string.js"></script>
+    <script>
+      mocha.checkLeaks(); 
+      mocha.run();
+    </script>
+  </body>
 </html>
