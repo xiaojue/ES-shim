@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
   <head>
     <title>es.js test</title> 
@@ -7,6 +8,7 @@
   <body>
     <div id="mocha"></div>
     <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
     <script src="../lib/$es.js"></script>
     <script src="../lib/array.js"></script>
     <script src="../lib/boolean.js"></script>
@@ -20,8 +22,12 @@
     <script src="../lib/promise.js"></script>
     <script src="../lib/regexp.js"></script>
     <script src="../lib/string.js"></script>
-
     <!-- test -->
+    <script>
+      expect = chai.expect;
+      mocha.setup('bdd');
+    </script>
+    <script src="test.es.js"></script>
     <script src="test.array.js"></script>
     <script src="test.boolean.js"></script>
     <script src="test.date.js"></script>
@@ -35,7 +41,6 @@
     <script src="test.regexp.js"></script>
     <script src="test.string.js"></script>
     <script>
-      mocha.checkLeaks(); 
       mocha.run();
     </script>
   </body>
