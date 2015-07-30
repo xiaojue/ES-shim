@@ -114,8 +114,8 @@ You can use some [ES5][1] or [ES6][2] features in old browsers,like `Promise` `J
 
 #### String
 
-- `Srting.prototype.trim`
-- `Srting.prototype.toJSON`
+- `String.prototype.trim`
+- `String.prototype.toJSON`
 - `String.fromCodePoint`
 - `String.raw`
 - `String.prototype.codePointAt`
